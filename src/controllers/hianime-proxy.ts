@@ -8,7 +8,7 @@ export const hianimeHlsProxy = async (req: Request, res: Response) => {
       responseType: 'text',
     });
     const originalContent = response.data as string;
-    const proxyBaseUrl = `${process.env.BASE_URL}/hianime-hls-proxy?url=${encodeURIComponent(url.split('/master')[0])}`
+    const proxyBaseUrl = `${process.env.BASE_URL}/hianime-quality-proxy?url=${encodeURIComponent(url.split('/master')[0])}`
     const updatedContent = originalContent
     .split('\n')
     .map((line) => {
