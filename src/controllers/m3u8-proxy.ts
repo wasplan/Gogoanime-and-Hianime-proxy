@@ -1,21 +1,21 @@
-import { Request, Response } from "express";
 import axios from "axios";
+import { Request, Response } from "express";
+import { editUrl } from "../utils/helper";
 
-export const hlsProxy = async (req: Request, res: Response) => {
+export const m3u8Proxy = async (req: Request, res: Response) => {
   try {
     const url = req.query.url as string;
     const response = await axios.get(url, {
       responseType: 'text',
     });
+    const editedUrl = editUrl(url);
+    const proxyUrl = `${process.env.BASE_URL}/m3u8-quality-proxy?url=${editedUrl}`;
     const originalContent = response.data as string;
-    const proxyBaseUrl = `${process.env.BASE_URL}/quality-proxy?url=${encodeURIComponent(url.split('/ep')[0])}`
     const updatedContent = originalContent
       .split('\n')
       .map(line => {
-        if (line.startsWith('ep')) {
-          return `${proxyBaseUrl}/${line}`;
-        }
-        return line;
+        if (line.startsWith('#EXT')) return line;
+        return line ? `${proxyUrl}${line}` : '';
       })
       .join('\n');
 
@@ -23,27 +23,26 @@ export const hlsProxy = async (req: Request, res: Response) => {
       'Content-Type': 'application/vnd.apple.mpegurl',
       'Cache-Control': 'no-cache',
     });
-    res.send(updatedContent);
+    res.status(200).send(updatedContent);
   } catch (error: any) {
     console.log(error.message);
   }
-}
+};
 
-export const qualityProxy = async (req: Request, res: Response) => {
+export const m3u8QualityProxy = async (req: Request, res: Response) => {
   try {
     const url = req.query.url as string;
     const response = await axios.get(url, {
       responseType: 'text',
     });
+    const editedUrl = editUrl(url);
+    const proxyUrl = `${process.env.BASE_URL}/m3u8-segment-proxy?url=${editedUrl}`;
     const originalContent = response.data as string;
-    const proxyBaseUrl = `${process.env.BASE_URL}/segment-proxy?url=${url.split('/ep')[0]}`
     const updatedContent = originalContent
       .split('\n')
       .map(line => {
-        if (line.startsWith('ep')) {
-          return `${proxyBaseUrl}/${line}`;
-        }
-        return line;
+        if (line.startsWith('#EXT')) return line;
+        return line ? `${proxyUrl}${line}` : '';
       })
       .join('\n');
 
@@ -51,13 +50,13 @@ export const qualityProxy = async (req: Request, res: Response) => {
       'Content-Type': 'application/vnd.apple.mpegurl',
       'Cache-Control': 'no-cache',
     });
-    res.send(updatedContent);
+    res.status(200).send(updatedContent);
   } catch (error: any) {
     console.log(error.message);
   }
-}
+};
 
-export const segmentProxy = async (req: Request, res: Response) => {
+export const m3u8SegmentProxy = async (req: Request, res: Response) => {
   try {
     const url = req.query.url as string;
     const response = await axios.get(url, {
@@ -72,4 +71,4 @@ export const segmentProxy = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.log(error.message);
   }
-}
+};
