@@ -58,7 +58,7 @@ export const qualityProxy = async (req: Request, res: Response) => {
 }
 
 export const segmentProxy = async (req: Request, res: Response) => {
-   try {
+  try {
     const url = req.query.url as string;
     const response = await axios.get(url, {
       responseType: 'stream',
